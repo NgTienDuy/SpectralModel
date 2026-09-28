@@ -1,0 +1,46 @@
+name: rod_open_set_retrieval
+seed: 20260911
+split_kind: open_set
+task:
+  kind: open_set_retrieval
+  id: rod-open-set-retrieval
+dataset:
+  id: rod
+  limit: null
+window:
+  low_cm1: 200.0
+  high_cm1: 1200.0
+  step_cm1: 2.0
+preprocess:
+  baseline: snip
+  normalise: none
+split:
+  test_fraction: 0.2
+compare:
+  risk_target: 0.01
+  coverage_target: 0.5
+  bootstrap_samples: 2000
+  confidence: 0.95
+report:
+  shows:
+  - 'How three classical spectral-library similarity metrics compare, under one protocol,
+    on an open-set retrieval task built from real deposited Raman spectra: 348 mineral
+    identities in the library, queries of both present and held-out identities.'
+  - Where the risk-coverage frontier of classical library matching actually sits on
+    this corpus, which is the M2 baseline every later method has to beat.
+  - 'That the difference between these metrics under open-set conditions is a difference
+    in the open-set decision, not in retrieval ranking: the spectral contrast angle
+    is monotone in the cosine and returns an identical candidate order.'
+  does_not_show:
+  - Nothing about accuracy on a closed-set task. Every number here is conditional
+    on a library that is missing, by construction, one identity in five.
+  - Nothing about instrument transfer. ROD's instrument and lab fields are near-coincident,
+    so an instrument-disjoint claim cannot be separated from a lab-disjoint one, and
+    this split is neither - it holds out identities.
+  - Nothing calibrated. Every confidence on the risk-coverage curve derives from p_none
+    = 1 - best similarity, a stated and UNCALIBRATED convention (PROJECT_NOVELTY.md#N10).
+    A method's position on the frontier reflects that convention as much as the method.
+  - Nothing about mixtures, and nothing about substances outside the 200-1200 cm-1
+    window or outside the covering subset of ROD.
+  - No causal or mechanistic claim of any kind. These are correlations between spectral
+    shapes.

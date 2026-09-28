@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # numpy's shipped stubs need 3.12+ syntax, so mypy runs under 3.12 even though the
+      # package supports 3.11. Widen this to a matrix once the runtime surface is larger.
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install
+        run: uv sync
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      - name: Typecheck
+        run: uv run mypy
+
+      # Offline by design: the brief forbids tests that touch the network, so a fetcher that
+      # sneaks a real request in fails here rather than in a reviewer's head.
+      - name: Test
+        run: uv run pytest -q --cov=usis --cov-report=term-missing
+
+      # The leakage gate the brief requires in CI. It runs inside the suite above too; naming it
+      # separately means a failure says "leakage" in the job list rather than "tests failed".
+      - name: Leakage check
+        run: uv run pytest -q tests/test_leakage.py tests/test_splits_integration.py
+
+      - name: Build
+        run: uv build

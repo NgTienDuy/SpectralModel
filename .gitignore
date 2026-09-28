@@ -1,0 +1,73 @@
+# --- secrets: never commit these ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+credentials.json
+secrets.*
+
+# --- Claude Code local, machine-specific ---
+CLAUDE.local.md
+.claude/settings.local.json
+
+# --- dependencies ---
+node_modules/
+vendor/
+.venv/
+venv/
+env/
+__pycache__/
+*.egg-info/
+target/
+
+# --- build output ---
+dist/
+build/
+out/
+.next/
+.nuxt/
+*.o
+*.so
+*.pyc
+*.class
+
+# --- caches ---
+.cache/
+.parcel-cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.gradle/
+.turbo/
+
+# --- logs and runtime ---
+*.log
+logs/
+pids/
+*.pid
+tmp/
+.run/
+
+# --- local data ---
+*.sqlite
+*.sqlite3
+*.db
+data/local/
+# Fetched corpus. Never committed: vendoring is gated on a dataset's licence
+# (usis/data/licences.py), and an accidental `git add data/` would route around that gate.
+data/raw/
+data/cache/
+coverage/
+.coverage
+.nyc_output/
+
+# --- editor / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~

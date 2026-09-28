@@ -1,0 +1,24 @@
+# A committed experiment config. Every reported number must be reproducible from a file like this
+# plus its seed; see PROJECT_DECISIONS.md D10 and usis/core/config.py.
+#
+# `name`, `seed` and `split_kind` are required and have no defaults. That is deliberate: a default
+# split kind would make `random` the silent norm, and a default seed would make the run
+# irreproducible in the way that is hardest to notice.
+
+name: example_baseline
+seed: 0
+split_kind: sample_disjoint
+
+dataset:
+  id: rod
+  # Whether the licence permits vendoring is checked at load time, not asserted here.
+
+split:
+  test_fraction: 0.2
+
+metrics:
+  confidence: 0.95
+  bootstrap_samples: 10000
+  # Resample over groups rather than items: replicates of one sample are not independent, and
+  # ignoring that gives an interval too narrow by roughly sqrt(replicate count).
+  bootstrap_over_groups: true

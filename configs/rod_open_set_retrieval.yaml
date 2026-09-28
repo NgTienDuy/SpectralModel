@@ -1,0 +1,72 @@
+# M2 leaderboard 1: open-set compound retrieval on the Raman Open Database.
+#
+# Reproduce with:
+#   uv run usis data pull rod --all
+#   uv run usis compare configs/rod_open_set_retrieval.yaml --out experiments/M2-rod-open-set-retrieval
+#
+# Every value that moves a number lives here rather than in a script, so the record's config hash
+# identifies the run. See PROJECT_DECISIONS.md D10 and usis/core/config.py.
+
+name: rod_open_set_retrieval
+seed: 20260911
+split_kind: open_set
+
+task:
+  kind: open_set_retrieval
+  id: rod-open-set-retrieval
+
+dataset:
+  id: rod
+  limit: null # every mirrored record; a limit would take them in filename order, not at random
+
+# The analysis window. Chosen to cover the mineral fingerprint region while being spanned by as
+# much of ROD as possible; spectra that do not cover it are dropped and counted, never padded.
+window:
+  low_cm1: 200.0
+  high_cm1: 1200.0
+  step_cm1: 2.0
+
+preprocess:
+  # SNIP never adds to a sample, so it cannot manufacture a band. Its iteration count times the
+  # axis step is the width above which a broad feature is treated as background - a claim about
+  # the sample, made here explicitly.
+  baseline: snip
+  # None: every similarity metric compared here is scale-invariant, so a normalisation would
+  # change no number while adding a step to every recorded chain.
+  normalise: none
+
+split:
+  # Share of spectra whose identity is held out of the library entirely. These are the queries
+  # whose correct answer is "none of these".
+  test_fraction: 0.2
+
+compare:
+  # The risk ceiling the headline coverage statistic is held to. 1% is the project's stated target
+  # operating point: ">99% correct on accepted cases".
+  risk_target: 0.01
+  coverage_target: 0.5
+  bootstrap_samples: 2000
+  confidence: 0.95
+
+report:
+  shows:
+    - "How three classical spectral-library similarity metrics compare, under one protocol, on an
+       open-set retrieval task built from real deposited Raman spectra: 348 mineral identities in
+       the library, queries of both present and held-out identities."
+    - "Where the risk-coverage frontier of classical library matching actually sits on this
+       corpus, which is the M2 baseline every later method has to beat."
+    - "That the difference between these metrics under open-set conditions is a difference in the
+       open-set decision, not in retrieval ranking: the spectral contrast angle is monotone in the
+       cosine and returns an identical candidate order."
+  does_not_show:
+    - "Nothing about accuracy on a closed-set task. Every number here is conditional on a library
+       that is missing, by construction, one identity in five."
+    - "Nothing about instrument transfer. ROD's instrument and lab fields are near-coincident, so
+       an instrument-disjoint claim cannot be separated from a lab-disjoint one, and this split is
+       neither - it holds out identities."
+    - "Nothing calibrated. Every confidence on the risk-coverage curve derives from p_none = 1 -
+       best similarity, a stated and UNCALIBRATED convention (PROJECT_NOVELTY.md#N10). A method's
+       position on the frontier reflects that convention as much as the method."
+    - "Nothing about mixtures, and nothing about substances outside the 200-1200 cm-1 window or
+       outside the covering subset of ROD."
+    - "No causal or mechanistic claim of any kind. These are correlations between spectral shapes."
